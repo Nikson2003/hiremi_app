@@ -31,7 +31,7 @@ class BottomBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: List.generate(
-          6,
+          5,
           (index) => GestureDetector(
             onTap: () {
               onItemSelected(index);
