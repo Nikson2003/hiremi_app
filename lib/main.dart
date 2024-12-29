@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'main_layout.dart';
 import 'package:provider/provider.dart';
 import 'selected_index_provider.dart';
+import 'open_animation.dart';
 
 void main() {
   runApp(
     ChangeNotifierProvider(
-      create: (context) =>
-          SelectedIndexProvider(), // Provide the state globally
+      create: (context) => SelectedIndexProvider(),
       child: MyApp(),
     ),
   );
@@ -23,7 +22,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         scaffoldBackgroundColor: Colors.grey[50],
       ),
-      home: MainLayout(),
+      home: OpenAnimation(),
     );
   }
 }

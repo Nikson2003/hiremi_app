@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'settings.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MenuDrawer extends StatefulWidget {
   final VoidCallback onProfileTap;
@@ -23,10 +24,27 @@ class MenuDrawer extends StatefulWidget {
 class _MenuDrawerState extends State<MenuDrawer> {
   int _selectedIndex = -1;
 
+  String? username;
+  String? email;
+  String? password;
+  bool? status;
+
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      username = prefs.getString('username');
+      email = prefs.getString('email');
+      password = prefs.getString('password');
+      status = prefs.getBool('status');
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
+
+    _loadUserData();
 
     return Drawer(
       child: Column(
@@ -63,7 +81,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Nikson Nadar',
+                        username ?? 'Unknown',
                         style: TextStyle(
                           fontSize: screenWidth * 0.04,
                           fontWeight: FontWeight.bold,
@@ -87,19 +105,25 @@ class _MenuDrawerState extends State<MenuDrawer> {
                       vertical: screenHeight * 0.01,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.green,
+                      color: status == true ? Colors.green : Colors.red,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       children: [
-                        Icon(
-                          Icons.check_circle,
-                          size: screenWidth * 0.04,
-                          color: Colors.white,
-                        ),
+                        status == true
+                            ? Icon(
+                                Icons.verified,
+                                size: screenWidth * 0.04,
+                                color: Colors.white,
+                              )
+                            : Icon(
+                                Icons.cancel,
+                                size: screenWidth * 0.04,
+                                color: Colors.white,
+                              ),
                         SizedBox(width: screenWidth * 0.01),
                         Text(
-                          'Verified',
+                          status == true ? 'Verified' : 'Unverified',
                           style: TextStyle(
                             fontSize: screenWidth * 0.035,
                             color: Colors.white,

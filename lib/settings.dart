@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -6,12 +7,26 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  final String username = 'Nikson';
   final String appId = 'APP34364534';
 
   bool _isJobAlertEnabled = false;
 
   List<bool> _isSelected = [false, false, false, false, false];
+
+  String? username;
+  String? email;
+  String? password;
+  bool? status;
+
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      username = prefs.getString('username');
+      email = prefs.getString('email');
+      password = prefs.getString('password');
+      status = prefs.getBool('status');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +36,8 @@ class _SettingsPageState extends State<SettingsPage> {
     double avatarRadius = width * 0.05;
     double fontSizeUsername = width * 0.06;
     double fontSizeAppId = width * 0.03;
+
+    _loadUserData();
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
@@ -55,7 +72,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          username,
+                          username ?? 'Unknown',
                           style: TextStyle(
                             fontSize: fontSizeUsername,
                             fontWeight: FontWeight.bold,
@@ -96,13 +113,13 @@ class _SettingsPageState extends State<SettingsPage> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
-                            Icons.check_circle,
+                            status == true ? Icons.verified : Icons.close,
                             color: Colors.white,
                             size: width * 0.05,
                           ),
                           SizedBox(width: 4),
                           Text(
-                            'Verified',
+                            status == true ? 'Verified' : 'Unverified',
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,

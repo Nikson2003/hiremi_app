@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'menu.dart';
 import 'jobs_list.dart';
 import 'main_layout.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'login_page.dart';
+import 'dart:ui';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -16,10 +19,18 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Job> selJobList = [];
   late Timer _timer;
 
+  String? username;
+  String? email;
+  String? password;
+  bool? status;
+
+  bool _isUserDataLoaded = false;
+
   @override
   void initState() {
     super.initState();
     _startAutoSlide();
+    _loadUserData();
 
     jobsList.addJob(Job(
       title: 'Software Engineer',
@@ -86,10 +97,210 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  Future<void> makeVerified() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('status', true);
+    await _loadUserData();
+  }
+
+  Future<void> makeUnverfied() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('status', false);
+    await _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    if (!_isUserDataLoaded) {
+      final prefs = await SharedPreferences.getInstance();
+      setState(() {
+        username = prefs.getString('username');
+        email = prefs.getString('email');
+        password = prefs.getString('password');
+        status = prefs.getBool('status');
+        _isUserDataLoaded = true;
+      });
+    }
+  }
+
   void _onPageChanged(int index) {
     setState(() {
       _currentPage = index;
     });
+  }
+
+  Future<void> _showVerificationDialog(BuildContext context) async {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return Stack(
+          children: [
+            Positioned.fill(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                child: Container(
+                  color: Colors.black.withOpacity(0.3),
+                ),
+              ),
+            ),
+            Center(
+              child: AlertDialog(
+                contentPadding: EdgeInsets.all(0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      padding:
+                          EdgeInsets.symmetric(vertical: screenHeight * 0.04),
+                      decoration: BoxDecoration(
+                        color: Colors.blue[800],
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          Image.asset(
+                            'assets/verified.png',
+                            height: screenHeight * 0.2,
+                            fit: BoxFit.contain,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding:
+                          EdgeInsets.symmetric(vertical: screenHeight * 0.02),
+                      child: Column(
+                        children: [
+                          Text(
+                            'Congratulations! You are verified',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: screenHeight * 0.02,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                          SizedBox(height: screenHeight * 0.02),
+                          SizedBox(
+                            width: screenWidth * 0.7,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue[800],
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: screenHeight * 0.015),
+                                child: Text('OK'),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Widget _buildProgressStep({required bool completed, required String label}) {
+  //   return Column(
+  //     children: [
+  //       Row(
+  //         children: [
+  //           Icon(
+  //             completed ? Icons.check_circle : Icons.circle_outlined,
+  //             color: Colors.white,
+  //             size: 24,
+  //           ),
+  //           if (!completed)
+  //             Container(width: 30, height: 2, color: Colors.white),
+  //         ],
+  //       ),
+  //       SizedBox(height: 8),
+  //       Text(
+  //         label,
+  //         style: TextStyle(
+  //           color: Colors.white,
+  //           fontSize: 12,
+  //           fontWeight: FontWeight.w500,
+  //         ),
+  //         textAlign: TextAlign.center,
+  //       ),
+  //     ],
+  //   );
+  // }
+
+  Widget _buildCircleWithLine(
+      int stepNumber, bool isCompleted, double screenWidth,
+      {bool isLast = false}) {
+    return Expanded(
+      child: Row(
+        children: [
+          Container(
+            width: screenWidth * 0.08,
+            height: screenWidth * 0.08,
+            decoration: BoxDecoration(
+              color: isCompleted ? Colors.blue[800] : Colors.white,
+              border: Border.all(
+                  color: const Color.fromRGBO(30, 136, 229, 1), width: 2),
+              borderRadius: BorderRadius.circular(screenWidth * 0.04),
+            ),
+            child: Center(
+              child: isCompleted
+                  ? Icon(Icons.check,
+                      color: Colors.white, size: screenWidth * 0.04)
+                  : Text(
+                      '$stepNumber',
+                      style: TextStyle(
+                        color: Colors.blue[800],
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+            ),
+          ),
+          if (!isLast)
+            Expanded(
+              child: Container(
+                height: 2,
+                color: Colors.blue[600],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStepLabel(String label, double screenWidth) {
+    return SizedBox(
+      width: screenWidth * 0.2,
+      child: Text(
+        label,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: screenWidth * 0.025,
+          fontWeight: FontWeight.w400,
+          color: Colors.white,
+        ),
+      ),
+    );
   }
 
   @override
@@ -100,10 +311,13 @@ class _HomeScreenState extends State<HomeScreen> {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
+    // _loadUserData();
+    // makeUnverfied();
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        backgroundColor: Colors.blue[800],
+        backgroundColor: const Color.fromRGBO(21, 101, 192, 1),
         elevation: 0,
         title: Text(
           'Hiremi',
@@ -137,74 +351,213 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Container(
-              width: MediaQuery.of(context).size.width,
-              height: blueBoxHeight,
-              color: Colors.blue[800],
-              child: Padding(
-                padding: EdgeInsets.all(16),
-                child: Align(
-                  alignment: Alignment.center,
-                  child: Container(
-                    width: MediaQuery.of(context).size.width - 2 * 16.0,
-                    decoration: BoxDecoration(
-                      color: Color.fromARGB(255, 75, 155, 246),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    padding: EdgeInsets.all(16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Nikson Nadar',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue[900],
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              'App ID : HM12434322',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w400,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.check_circle,
-                                color: Colors.blue[800],
-                                size: 20,
-                              ),
-                              SizedBox(width: 4),
-                              Text(
-                                'Verified',
-                                style: TextStyle(
-                                  color: Colors.blue[800],
-                                  fontWeight: FontWeight.bold,
+            SingleChildScrollView(
+              child: Container(
+                width: screenWidth,
+                height: status == true
+                    ? blueBoxHeight + 0.2 * appBarHeight
+                    : blueBoxHeight + 1.3 * appBarHeight,
+                decoration: BoxDecoration(
+                  color: const Color.fromRGBO(21, 101, 192, 1),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(30),
+                    bottomRight: Radius.circular(30),
+                  ),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Container(
+                      width: screenWidth - 2 * 16.0,
+                      decoration: BoxDecoration(
+                        color: status == false
+                            ? Color.fromARGB(4, 114, 227, 51)
+                            : Colors.blue[400],
+                        borderRadius: BorderRadius.circular(15),
+                        border: status == false
+                            ? Border.all(
+                                color: Colors.white, width: screenWidth * 0.004)
+                            : null,
+                        boxShadow: status == false
+                            ? [
+                                BoxShadow(
+                                  color: Colors.white.withOpacity(0.5),
+                                  spreadRadius: 1,
+                                  blurRadius: 8,
+                                  offset: Offset(0, 4),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                              ]
+                            : [],
+                      ),
+                      padding: EdgeInsets.all(16),
+                      child: status == true
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      username ?? 'Unknown',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.blue[900],
+                                      ),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      'App ID : HM12434322',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w400,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.verified,
+                                        color: Colors.blue[800],
+                                        size: 20,
+                                      ),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        'Verified',
+                                        style: TextStyle(
+                                          color: Colors.blue[800],
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Verify your account',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                SizedBox(height: screenHeight * 0.013),
+                                Center(
+                                  child: Column(
+                                    children: [
+                                      Align(
+                                        alignment: Alignment.center,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            SizedBox(width: screenWidth * 0.08),
+                                            _buildCircleWithLine(
+                                                1, true, screenWidth),
+                                            _buildCircleWithLine(
+                                                2, false, screenWidth),
+                                            _buildCircleWithLine(
+                                                3, false, screenWidth),
+                                            _buildCircleWithLine(
+                                                4, false, screenWidth,
+                                                isLast: true),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(height: screenHeight * 0.01),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          _buildStepLabel(
+                                              'Complete Profile', screenWidth),
+                                          _buildStepLabel(
+                                              'Verification Payment',
+                                              screenWidth),
+                                          _buildStepLabel(
+                                              'Wait for Verification',
+                                              screenWidth),
+                                          _buildStepLabel('Get Lifetime Access',
+                                              screenWidth),
+                                        ],
+                                      ),
+                                      SizedBox(height: screenHeight * 0.01),
+                                      Center(
+                                        child: SizedBox(
+                                          width: screenWidth * 0.7,
+                                          height: screenHeight * 0.04,
+                                          child: ElevatedButton(
+                                            onPressed: () async {
+                                              await _showVerificationDialog(
+                                                  context);
+                                              await makeUnverfied();
+                                              await _loadUserData();
+                                              final prefs =
+                                                  await SharedPreferences
+                                                      .getInstance();
+                                              await prefs.setBool(
+                                                  'status', true);
+                                              status = true;
+                                              // print(prefs.getBool('status'));
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.white,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                            ),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Icon(
+                                                  Icons.verified,
+                                                  color: Colors.blue[800],
+                                                  size: screenWidth * 0.045,
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Text(
+                                                  'Get Verified',
+                                                  style: TextStyle(
+                                                    fontSize:
+                                                        screenWidth * 0.045,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.blue[800],
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Icon(
+                                                  Icons.arrow_forward_ios,
+                                                  color: Colors.blue[800],
+                                                  size: screenWidth * 0.033,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                     ),
                   ),
                 ),
@@ -370,10 +723,42 @@ class _HomeScreenState extends State<HomeScreen> {
                     imagePath = 'assets/experience.png';
                   }
 
+                  void navigateToPage(int index) {
+                    int targetIndex;
+                    switch (index) {
+                      case 0:
+                        targetIndex = 2;
+                        break;
+                      case 1:
+                        targetIndex = 1;
+                        break;
+                      case 2:
+                        targetIndex = 3;
+                        break;
+                      case 3:
+                        targetIndex = 1;
+                        break;
+                      case 4:
+                        targetIndex = 4;
+                        break;
+                      case 5:
+                        targetIndex = 1;
+                        break;
+                      default:
+                        targetIndex = 0;
+                    }
+
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            MainLayout(initialIndex: targetIndex),
+                      ),
+                    );
+                  }
+
                   return GestureDetector(
-                    onTap: () {
-                      // print('Box $index clicked');
-                    },
+                    onTap: () => navigateToPage(index),
                     child: Container(
                       height: screenHeight * 0.2,
                       decoration: BoxDecoration(

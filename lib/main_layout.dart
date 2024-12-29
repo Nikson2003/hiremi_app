@@ -34,7 +34,7 @@ class MainLayoutState extends State<MainLayout> {
     JobsMainPage(),
     AskExpertScreen(),
     StatusPage(),
-    Center(child: Text("360 Screen")),
+    SettingsPage(),
     NotificationPage(),
     SettingsPage(),
   ];
