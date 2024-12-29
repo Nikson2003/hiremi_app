@@ -33,6 +33,7 @@ dependencies:
   intl: ^0.18.0
   shared_preferences: ^2.0.17
   provider: ^6.0.0
+  flutter_svg: ^0.22.0
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -79,6 +80,11 @@ flutter:
     - assets/experience.png
     - assets/hiremi.png
     - assets/verified.png
+    - assets/verified_user.gif
+    - assets/bottom_bar/jobs.svg
+    - assets/bottom_bar/ask_expert.svg
+    - assets/bottom_bar/status.svg
+    - assets/bottom_bar/hiremi_360.png
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

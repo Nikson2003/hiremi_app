@@ -148,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             Center(
               child: AlertDialog(
-                contentPadding: EdgeInsets.all(0),
+                contentPadding: EdgeInsets.only(bottom: 10),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
@@ -166,48 +166,46 @@ class _HomeScreenState extends State<HomeScreen> {
                           topRight: Radius.circular(20),
                         ),
                       ),
-                      child: Column(
+                      child: Stack(
+                        alignment: Alignment.center,
                         children: [
                           Image.asset(
                             'assets/verified.png',
                             height: screenHeight * 0.2,
                             fit: BoxFit.contain,
                           ),
+                          Image.asset(
+                            'assets/verified_user.gif',
+                            height: screenHeight * 0.2,
+                            fit: BoxFit.contain,
+                          ),
                         ],
                       ),
                     ),
-                    Padding(
-                      padding:
-                          EdgeInsets.symmetric(vertical: screenHeight * 0.02),
-                      child: Column(
-                        children: [
-                          Text(
-                            'Congratulations! You are verified',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: screenHeight * 0.02,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                          SizedBox(height: screenHeight * 0.02),
-                          SizedBox(
-                            width: screenWidth * 0.7,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue[800],
-                              ),
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                    vertical: screenHeight * 0.015),
-                                child: Text('OK'),
-                              ),
-                            ),
-                          ),
-                        ],
+                    SizedBox(height: screenHeight * 0.02),
+                    Text(
+                      'Congratulations! You are verified.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: screenHeight * 0.02,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: screenHeight * 0.02),
+                    SizedBox(
+                      width: screenWidth * 0.7,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue[800],
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: screenHeight * 0.015),
+                          child: Text('OK'),
+                        ),
                       ),
                     ),
                   ],
@@ -687,39 +685,44 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemCount: 6,
                 itemBuilder: (context, index) {
                   String title, description;
-                  Color boxColor;
+                  Color startColor, endColor;
                   String imagePath;
 
                   if (index == 0) {
                     title = 'Ask Expert';
                     description = 'Ask Anything Get Expert Guidance';
-                    boxColor =
-                        Color.fromARGB(255, 21, 101, 192).withOpacity(0.4);
+                    endColor = Colors.blue.shade400;
+                    startColor = Colors.lightBlue.shade100;
                     imagePath = 'assets/ask_expert.png';
                   } else if (index == 1) {
                     title = 'Internship';
                     description = 'Gain Practical Experience';
-                    boxColor = Colors.green.withOpacity(0.4);
+                    endColor = Colors.green.shade400;
+                    startColor = Colors.lightGreen.shade100;
                     imagePath = 'assets/internship.png';
                   } else if (index == 2) {
                     title = 'Status';
                     description = 'Apply Mentorship & more';
-                    boxColor = Colors.pink.withOpacity(0.4);
+                    endColor = Colors.pink.shade400;
+                    startColor = Colors.pink.shade100;
                     imagePath = 'assets/status.png';
                   } else if (index == 3) {
                     title = 'Freshers';
                     description = 'Gain Practical Experience';
-                    boxColor = Colors.yellow.withOpacity(0.4);
+                    endColor = Colors.yellow.shade400;
+                    startColor = Colors.yellow.shade100;
                     imagePath = 'assets/freshers.png';
                   } else if (index == 4) {
                     title = 'Hiremi 360';
                     description = 'Gain Practical Experience';
-                    boxColor = Colors.orange.withOpacity(0.4);
+                    endColor = Colors.orange.shade400;
+                    startColor = Colors.orange.shade100;
                     imagePath = 'assets/hiremi_360.png';
                   } else {
                     title = 'Experience';
                     description = 'Explore diverse careers';
-                    boxColor = Colors.purple.withOpacity(0.4);
+                    endColor = Colors.purple.shade400;
+                    startColor = Colors.purple.shade100;
                     imagePath = 'assets/experience.png';
                   }
 
@@ -762,7 +765,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Container(
                       height: screenHeight * 0.2,
                       decoration: BoxDecoration(
-                        color: boxColor,
+                        gradient: LinearGradient(
+                          colors: [
+                            startColor,
+                            Colors.white,
+                            endColor,
+                          ],
+                          stops: [0.0, 0.65, 1.0],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
                         borderRadius: BorderRadius.circular(10),
                         boxShadow: [
                           BoxShadow(

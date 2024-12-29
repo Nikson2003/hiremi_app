@@ -19,40 +19,33 @@ class _OpenAnimationState extends State<OpenAnimation>
   void initState() {
     super.initState();
 
-    // Animation controller for circular progress
     _circleController = AnimationController(
       duration: const Duration(seconds: 3),
       vsync: this,
     );
 
-    // Circular progress animation
     _circleAnimation =
         Tween<double>(begin: 0.0, end: 1.0).animate(_circleController);
 
-    // Animation controller for flash effect
     _flashController = AnimationController(
       duration: const Duration(seconds: 1),
       vsync: this,
     );
 
-    // Flash animation (spreads from the center)
     _flashAnimation =
         Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
       parent: _flashController,
       curve: Curves.easeOut,
     ));
 
-    // Start the circular progress animation
     _circleController.forward();
 
-    // Trigger the flash animation after the circular animation completes
     _circleController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         _flashController.forward();
       }
     });
 
-    // Navigate after the flash animation completes
     _flashController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         _checkUserDetails();
@@ -89,8 +82,7 @@ class _OpenAnimationState extends State<OpenAnimation>
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    final circleSize =
-        screenSize.width * 0.4; // Circle size is 40% of screen width
+    final circleSize = screenSize.width * 0.4;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -165,7 +157,7 @@ class CirclePainter extends CustomPainter {
     final paint = Paint()
       ..color = Color.fromARGB(255, 21, 101, 192)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = size.width * 0.03; // Stroke width is 3% of circle width
+      ..strokeWidth = size.width * 0.03;
 
     canvas.drawArc(
       Rect.fromLTWH(0, 0, size.width, size.height),

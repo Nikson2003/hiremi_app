@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'main_layout.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class BottomBar extends StatelessWidget {
   final int selectedIndex;
@@ -39,22 +39,50 @@ class BottomBar extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  index == 0
-                      ? Icons.home
-                      : index == 1
-                          ? Icons.work
-                          : index == 2
-                              ? Icons.chat
-                              : index == 3
-                                  ? Icons.assignment
-                                  : index == 4
-                                      ? Icons.loop
-                                      : Icons.notifications,
-                  color:
-                      selectedIndex == index ? Colors.blue[800] : Colors.grey,
-                  size: 28,
-                ),
+                index == 0
+                    ? Icon(
+                        Icons.home,
+                        color: selectedIndex == index
+                            ? Colors.blue[800]
+                            : Colors.grey,
+                        size: 28,
+                      )
+                    : index == 1
+                        ? SvgPicture.asset(
+                            'assets/bottom_bar/jobs.svg',
+                            color: selectedIndex == index
+                                ? Colors.blue[800]
+                                : Colors.grey,
+                            height: 28,
+                          )
+                        : index == 2
+                            ? SvgPicture.asset(
+                                'assets/bottom_bar/ask_expert.svg',
+                                color: selectedIndex == index
+                                    ? Colors.blue[800]
+                                    : Colors.grey,
+                                height: 28,
+                              )
+                            : index == 3
+                                ? SvgPicture.asset(
+                                    'assets/bottom_bar/status.svg',
+                                    color: selectedIndex == index
+                                        ? Colors.blue[800]
+                                        : Colors.grey,
+                                    height: 28,
+                                  )
+                                : index == 4
+                                    ? Image.asset(
+                                        'assets/bottom_bar/hiremi_360.png',
+                                        height: 28,
+                                      )
+                                    : Icon(
+                                        Icons.notifications,
+                                        color: selectedIndex == index
+                                            ? Colors.blue[800]
+                                            : Colors.grey,
+                                        size: 28,
+                                      ),
                 SizedBox(height: 2),
                 Text(
                   index == 0

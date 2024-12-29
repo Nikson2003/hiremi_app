@@ -10,6 +10,7 @@ import 'menu.dart';
 import 'settings.dart';
 import 'selected_index_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_svg/svg.dart';
 
 class MainLayout extends StatefulWidget {
   final int initialIndex;
@@ -39,12 +40,12 @@ class MainLayoutState extends State<MainLayout> {
     SettingsPage(),
   ];
 
-  final List<IconData> _icons = [
+  final List<dynamic> _icons = [
     Icons.home,
-    Icons.work,
-    Icons.chat,
-    Icons.assignment,
-    Icons.loop,
+    'assets/bottom_bar/jobs.svg',
+    'assets/bottom_bar/ask_expert.svg',
+    'assets/bottom_bar/status.svg',
+    'assets/bottom_bar/hiremi_360.png',
     Icons.notifications,
   ];
 
@@ -169,13 +170,28 @@ class MainLayoutState extends State<MainLayout> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    _icons[index],
-                    color: _selectedIndex == index
-                        ? Colors.blue[800]
-                        : Colors.grey,
-                    size: 28,
-                  ),
+                  _icons[index] is IconData
+                      ? Icon(
+                          _icons[index],
+                          color: _selectedIndex == index
+                              ? Colors.blue[800]
+                              : Colors.grey,
+                          size: 28,
+                        )
+                      : _icons[index].endsWith('.svg')
+                          ? SvgPicture.asset(
+                              _icons[index],
+                              color: _selectedIndex == index
+                                  ? Colors.blue[800]
+                                  : Colors.grey,
+                              width: 28,
+                              height: 28,
+                            )
+                          : Image.asset(
+                              _icons[index],
+                              width: 28,
+                              height: 28,
+                            ),
                   SizedBox(height: 2),
                   Text(
                     _titles[index],

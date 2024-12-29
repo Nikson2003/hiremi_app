@@ -67,16 +67,13 @@ class Internship extends Job {
   }
 }
 
-// Jobs List
 class JobsList {
   List<Job> _jobs = [];
 
-  // Add a new job
   void addJob(Job job) {
     _jobs.add(job);
   }
 
-  // Get all jobs
   List<Job> get jobs => _jobs;
 
   List<Job> filterJobs(List<bool> isSelected) {

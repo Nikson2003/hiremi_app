@@ -35,7 +35,6 @@ class _LoginPageState extends State<LoginPage> {
     if (value == null || value.isEmpty) {
       return "Email cannot be empty";
     }
-    // Regular expression for basic email validation
     final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
     if (!emailRegex.hasMatch(value)) {
       return "Enter a valid email";
